@@ -604,6 +604,9 @@
  * Default Axis Steps Per Unit (steps/mm)
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
+ * https://www.matterhackers.com/news/3d-printer-firmware-settings-stepper-motor-configuration
+ * X/Y: 80 = 200 (steps per motor turn) * 16 (microsteps) / 2 (mm pitch on gt2 belt) / 20 (teeth on pulley)
+ * Z: 400 = 200 (steps per motor turn) * 16 (microsteps) / 8 (lead: mm per leadscrew turn)
  */
 #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 93 }
 
