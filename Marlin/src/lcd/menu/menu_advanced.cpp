@@ -102,7 +102,7 @@ void menu_cancelobject();
   #include "../../module/configuration_store.h"
 #endif
 
-#if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
+#if !ENABLED(SLIM_LCD_MENUS) && ( DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE) )
   //
   // Advanced Settings > Filament
   //
@@ -162,7 +162,7 @@ void menu_cancelobject();
     END_MENU();
   }
 
-#endif // !NO_VOLUMETRICS || ADVANCED_PAUSE_FEATURE
+#endif // !ENABLED(SLIM_LCD_MENUS) && ( DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE) )
 
 //
 // Advanced Settings > Temperature helpers
@@ -470,28 +470,28 @@ void menu_cancelobject();
     }
   #endif
 
+  // M92 Steps-per-mm
+  void menu_advanced_steps_per_mm() {
+    START_MENU();
+    BACK_ITEM(MSG_ADVANCED_SETTINGS);
+
+    #define EDIT_QSTEPS(Q) EDIT_ITEM_FAST(float51, MSG_##Q##_STEPS, &planner.settings.axis_steps_per_mm[_AXIS(Q)], 5, 9999, []{ planner.refresh_positioning(); })
+    EDIT_QSTEPS(A);
+    EDIT_QSTEPS(B);
+    EDIT_QSTEPS(C);
+
+    #if ENABLED(DISTINCT_E_FACTORS)
+      EDIT_ITEM_FAST(float51, MSG_E_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(active_extruder)], 5, 9999, []{ planner.refresh_positioning(); });
+      LOOP_L_N(n, E_STEPPERS)
+        EDIT_ITEM_FAST_N(float51, n, MSG_EN_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(n)], 5, 9999, []{ _planner_refresh_e_positioning(MenuItemBase::itemIndex); });
+    #elif E_STEPPERS
+      EDIT_ITEM_FAST(float51, MSG_E_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS], 5, 9999, []{ planner.refresh_positioning(); });
+    #endif
+
+    END_MENU();
+  }
+
 #endif // !SLIM_LCD_MENUS
-
-// M92 Steps-per-mm
-void menu_advanced_steps_per_mm() {
-  START_MENU();
-  BACK_ITEM(MSG_ADVANCED_SETTINGS);
-
-  #define EDIT_QSTEPS(Q) EDIT_ITEM_FAST(float51, MSG_##Q##_STEPS, &planner.settings.axis_steps_per_mm[_AXIS(Q)], 5, 9999, []{ planner.refresh_positioning(); })
-  EDIT_QSTEPS(A);
-  EDIT_QSTEPS(B);
-  EDIT_QSTEPS(C);
-
-  #if ENABLED(DISTINCT_E_FACTORS)
-    EDIT_ITEM_FAST(float51, MSG_E_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(active_extruder)], 5, 9999, []{ planner.refresh_positioning(); });
-    LOOP_L_N(n, E_STEPPERS)
-      EDIT_ITEM_FAST_N(float51, n, MSG_EN_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(n)], 5, 9999, []{ _planner_refresh_e_positioning(MenuItemBase::itemIndex); });
-  #elif E_STEPPERS
-    EDIT_ITEM_FAST(float51, MSG_E_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS], 5, 9999, []{ planner.refresh_positioning(); });
-  #endif
-
-  END_MENU();
-}
 
 void menu_advanced_settings() {
   #if ENABLED(FILAMENT_RUNOUT_SENSOR) && FILAMENT_RUNOUT_DISTANCE_MM
@@ -522,12 +522,13 @@ void menu_advanced_settings() {
     #if HAS_BED_PROBE
       if (!printer_busy())
         SUBMENU(MSG_ZPROBE_OFFSETS, menu_probe_offsets);
-    #endif
-  #endif // !SLIM_LCD_MENUS
+    #endif  
 
   // M92 - Steps Per mm
   if (!printer_busy())
     SUBMENU(MSG_STEPS_PER_MM, menu_advanced_steps_per_mm);
+
+  #endif // !SLIM_LCD_MENUS
 
   #if ENABLED(BACKLASH_GCODE)
     SUBMENU(MSG_BACKLASH, menu_backlash);
@@ -552,7 +553,7 @@ void menu_advanced_settings() {
     SUBMENU(MSG_TEMPERATURE, menu_advanced_temperature);
   #endif
 
-  #if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
+  #if  !ENABLED(SLIM_LCD_MENUS) && ( DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE) )
     SUBMENU(MSG_FILAMENT, menu_advanced_filament);
   #elif ENABLED(LIN_ADVANCE)
     #if EXTRUDERS == 1
